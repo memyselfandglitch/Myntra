@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   ChatBubbleOutlineOutlined,
   FavoriteBorderOutlined,
@@ -36,6 +36,25 @@ const PostWidget = ({
   const main = palette.text.primary;
   const primary = palette.primary.main;
 
+  const fetchProductDetails = useCallback(async () => {
+    const details = await Promise.all(
+      products.map(async (productId) => {
+        try {
+          const response = await fetch(`http://localhost:3001/products/${productId._id}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch product ${productId}`);
+          }
+          const product = await response.json();
+          return product;
+        } catch (error) {
+          console.error(`Error fetching product ${productId}:`, error);
+          return null; // Return null if fetching fails
+        }
+      })
+    );
+    setProductDetails(details.filter((product) => product !== null)); // Filter out null values
+  }, [products]);
+
   const patchLike = async () => {
     try {
       const response = await fetch(`http://localhost:3001/posts/${postId}/like`, {
@@ -49,6 +68,7 @@ const PostWidget = ({
       if (!response.ok) {
         throw new Error("Failed to like the post");
       }
+      fetchProductDetails(); 
       const updatedPost = await response.json();
       dispatch(setPost({ post: updatedPost }));
     } catch (error) {
@@ -57,28 +77,8 @@ const PostWidget = ({
   };
 
   useEffect(() => {
-    const fetchProductDetails = async () => {
-      const details = await Promise.all(
-        products.map(async (productId) => {
-          console.log("product id",productId)
-          try {
-            const response = await fetch(`http://localhost:3001/products/${productId._id}`);
-            if (!response.ok) {
-              throw new Error(`Failed to fetch product ${productId}`);
-            }
-            const product = await response.json();
-            return product;
-          } catch (error) {
-            console.error(`Error fetching product ${productId}:`, error);
-            return null; // Return null if fetching fails
-          }
-        })
-      );
-      setProductDetails(details.filter(product => product !== null)); // Filter out null values
-    };
-
     fetchProductDetails();
-  }, [products]);
+  }, [fetchProductDetails]);
 
   return (
     <WidgetWrapper m="2rem 0">

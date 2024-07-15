@@ -44,7 +44,7 @@ const UserWidget = ({ userId, picturePath }) => {
     location,
     occupation,
     viewedProfile,
-    impressions,
+    supercoins,
     friends,
   } = user;
 
@@ -103,9 +103,9 @@ const UserWidget = ({ userId, picturePath }) => {
           </Typography>
         </FlexBetween>
         <FlexBetween>
-          <Typography color={medium}>Impressions of your post</Typography>
+          <Typography color={medium}>Supercoins earned</Typography>
           <Typography color={main} fontWeight="500">
-            {impressions}
+            {supercoins}
           </Typography>
         </FlexBetween>
       </Box>
